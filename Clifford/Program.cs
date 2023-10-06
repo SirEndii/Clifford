@@ -12,8 +12,11 @@ namespace Clifford
     class Program
     {
 
-        public static string basePath = AppDomain.CurrentDomain.BaseDirectory;
-        public static string configPath = Path.Combine(basePath, "config.json");
+        private static string basePath   = AppDomain.CurrentDomain.BaseDirectory;
+        private static string configPath = Path.Combine(basePath, "config.json");
+        
+        public static readonly Config configuration = JsonConvert.DeserializeObject<Config>(File.ReadAllText(configPath));
+        
         private Credentials githubAuth;
 
         private DiscordSocketClient discordClient;
@@ -21,17 +24,18 @@ namespace Clifford
 
         public async Task MainAsync()
         {
-            string token = JsonConvert.DeserializeObject<Config>(File.ReadAllText(configPath)).discordToken;
+            string token = configuration.discordToken;
             var config = new DiscordSocketConfig()
             {
                 GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMessages
             };
-            discordClient = new DiscordSocketClient(config);
-            discordClient.Log += Log;
-            discordClient.Ready += Client_Ready;
+            discordClient          =  new DiscordSocketClient(config);
+            discordClient.Log      += Log;
+            discordClient.Ready    += Client_Ready;
+            await discordClient.SetActivityAsync(new Game("Boop", ActivityType.Listening, ActivityProperties.None, "Bop"));
             
             githubClient = new GitHubClient(new ProductHeaderValue("clifford-discord"));
-            githubClient.Credentials = new Credentials(JsonConvert.DeserializeObject<Config>(File.ReadAllText(configPath)).githubToken);
+            githubClient.Credentials = new Credentials(configuration.githubToken);
 
             await discordClient.LoginAsync(TokenType.Bot, token);
             await discordClient.StartAsync();
