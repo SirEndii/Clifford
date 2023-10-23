@@ -1,5 +1,4 @@
-﻿using System;
-using Clifford.Commands;
+﻿using Clifford.Commands;
 using Discord;
 using Discord.Net;
 using Discord.WebSocket;
@@ -12,33 +11,31 @@ namespace Clifford
     class Program
     {
 
-        private static string basePath   = AppDomain.CurrentDomain.BaseDirectory;
-        private static string configPath = Path.Combine(basePath, "config.json");
+        private static string _basePath   = AppDomain.CurrentDomain.BaseDirectory;
+        private static string _configPath = Path.Combine(_basePath, "config.json");
         
-        public static readonly Config configuration = JsonConvert.DeserializeObject<Config>(File.ReadAllText(configPath));
+        public static readonly Config Configuration = JsonConvert.DeserializeObject<Config>(File.ReadAllText(_configPath));
         
-        private Credentials githubAuth;
-
-        private DiscordSocketClient discordClient;
-        public static GitHubClient githubClient;
+        private DiscordSocketClient _discordClient;
+        public static GitHubClient GithubClient;
 
         public async Task MainAsync()
         {
-            string token = configuration.discordToken;
+            string token = Configuration.discordToken;
             var config = new DiscordSocketConfig()
             {
                 GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMessages
             };
-            discordClient          =  new DiscordSocketClient(config);
-            discordClient.Log      += Log;
-            discordClient.Ready    += Client_Ready;
-            await discordClient.SetActivityAsync(new Game("Boop", ActivityType.Listening, ActivityProperties.None, "Bop"));
+            _discordClient          =  new DiscordSocketClient(config);
+            _discordClient.Log      += Log;
+            _discordClient.Ready    += Client_Ready;
+            await _discordClient.SetActivityAsync(new Game("Boop", ActivityType.Listening, ActivityProperties.None, "Bop"));
             
-            githubClient = new GitHubClient(new ProductHeaderValue("clifford-discord"));
-            githubClient.Credentials = new Credentials(configuration.githubToken);
+            GithubClient = new GitHubClient(new ProductHeaderValue("clifford-discord"));
+            GithubClient.Credentials = new Credentials(Configuration.githubToken);
 
-            await discordClient.LoginAsync(TokenType.Bot, token);
-            await discordClient.StartAsync();
+            await _discordClient.LoginAsync(TokenType.Bot, token);
+            await _discordClient.StartAsync();
 
             await Task.Delay(-1);
         }
@@ -51,7 +48,7 @@ namespace Clifford
             }
             catch (HttpException exception)
             {
-                var json = JsonConvert.SerializeObject(exception.Errors, Newtonsoft.Json.Formatting.Indented);
+                var json = JsonConvert.SerializeObject(exception.Errors, Formatting.Indented);
                 Console.WriteLine(json);
             }
         }
@@ -64,11 +61,11 @@ namespace Clifford
             reportCommand.WithDescription("Report a message to the repository");
             reportCommand.AddOption("message_url", ApplicationCommandOptionType.String, "Message URl which will be parsed and reported", true);
 
-            await discordClient.CreateGlobalApplicationCommandAsync(reportCommand.Build());
-            ReportCommand reportCMD = new ReportCommand(discordClient);
-            discordClient.SlashCommandExecuted += reportCMD.SlashCommandHandler;
-            discordClient.ModalSubmitted += reportCMD.Submitted;
-            discordClient.ButtonExecuted += reportCMD.ButtonSubmitted;
+            await _discordClient.CreateGlobalApplicationCommandAsync(reportCommand.Build());
+            ReportCommand reportCmd = new ReportCommand(_discordClient);
+            _discordClient.SlashCommandExecuted += reportCmd.SlashCommandHandler;
+            _discordClient.ModalSubmitted += reportCmd.Submitted;
+            _discordClient.ButtonExecuted += reportCmd.ButtonSubmitted;
             
         }
 

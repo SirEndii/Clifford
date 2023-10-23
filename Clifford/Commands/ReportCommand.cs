@@ -112,7 +112,7 @@ namespace Clifford.Commands
                               {
                                   Body = message,
                               };
-            var issue = await Program.githubClient.Issue.Create("Seniorendi", "AdvancedPeripherals", createIssue);
+            var issue = await Program.GithubClient.Issue.Create("Seniorendi", "AdvancedPeripherals", createIssue);
 
             var embed = new EmbedBuilder
                         {
@@ -138,9 +138,9 @@ namespace Clifford.Commands
             string[] id = component.Data.CustomId.Split("-");
             if (id[0].Equals("close"))
             {
-                var issue = await Program.githubClient.Issue.Get("Seniorendi", "Advancedperipherals",
+                var issue = await Program.GithubClient.Issue.Get("Seniorendi", "Advancedperipherals",
                                                                  Convert.ToInt32(id[1]));
-                await Program.githubClient.Issue.Update("Seniorendi", "Advancedperipherals", Convert.ToInt32(id[1]),
+                await Program.GithubClient.Issue.Update("Seniorendi", "Advancedperipherals", Convert.ToInt32(id[1]),
                                                         new IssueUpdate() { State = ItemState.Closed });
 
                 var embed = new EmbedBuilder
@@ -169,9 +169,9 @@ namespace Clifford.Commands
 
             if (id[0].Equals("reopen"))
             {
-                var issue = await Program.githubClient.Issue.Get("Seniorendi", "Advancedperipherals",
+                var issue = await Program.GithubClient.Issue.Get("Seniorendi", "Advancedperipherals",
                                                                  Convert.ToInt32(id[1]));
-                await Program.githubClient.Issue.Update("Seniorendi", "Advancedperipherals", Convert.ToInt32(id[1]),
+                await Program.GithubClient.Issue.Update("Seniorendi", "Advancedperipherals", Convert.ToInt32(id[1]),
                                                         new IssueUpdate() { State = ItemState.Open });
 
                 var embed = new EmbedBuilder
